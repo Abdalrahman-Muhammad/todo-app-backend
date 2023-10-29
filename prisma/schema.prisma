@@ -10,15 +10,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
+
+model Category {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  isEditable Boolean
+  color     Color    @relation(fields: [colorId], references: [id])
+  colorId String     @db.ObjectId
+  icon      Icon     @relation(fields: [iconId], references: [id])
+  iconId String      @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+}
+
 model User {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  id      String     @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  email    String @unique
+  email    String    @unique
   password String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  categories Category[]
 }
 
+model Color {
+  id   String @id @map("_id") @default(auto()) @db.ObjectId
+  name String
+  code String
+   categories Category[]
+}
 
+model Icon {
+  id     String @id @map("_id") @default(auto()) @db.ObjectId
+  name   String
+  symbol String
+   categories Category[]
+
+}
 
 
