@@ -1,8 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { IUser } from "../types";
 
 const prisma = new PrismaClient();
+
+const getUserToken = (_id: String) => {
+  const authenticatedUserToken = jwt.sign({ _id }, "express", {
+    expiresIn: "7d",
+  });
+  return authenticatedUserToken;
+};
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -34,9 +43,34 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   try {
+    const { email, password }: IUser = req.body;
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (!existingUser)
+      return res.status(409).json({ message: "User doesn't exist" });
+
+    const isPasswordIdentical = await bcrypt.compare(
+      password,
+      existingUser.password
+    );
+    if (isPasswordIdentical) {
+      const token = getUserToken(existingUser.id);
+      return res.status(200).json({
+        token,
+        user: {
+          email: existingUser.email,
+          name: existingUser.name,
+        },
+      });
+    } else {
+      return res.status(403).json({ message: "Wrong credentials" });
+    }
   } catch (error) {
-    console.log("err");
+    console.log("error in loginUser", error);
+  } finally {
+    await prisma.$disconnect();
   }
 };
