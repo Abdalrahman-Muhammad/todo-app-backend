@@ -30,6 +30,31 @@ export const getAllCategories = async (req: Request, res: Response) => {
     await prisma.$disconnect();
   }
 };
+export const getCategoryById = async (req: Request, res: Response) => {
+  try {
+    const { user } = req;
+    const { id } = req.params;
+
+    const category = await prisma.category.findUnique({
+      where: { id: id },
+    });
+    if (!category) {
+      // Handle the case where the category with the specified ID is not found
+      return res.status(404).json({ error: "Category not found" });
+    }
+    // Fetch the associated Color and Icon records for each category
+    const categoryWithDetails = await prisma.category.findUnique({
+      where: { id: category.id },
+      include: { color: true, icon: true },
+    });
+
+    res.status(200).json(categoryWithDetails);
+  } catch (error) {
+    console.log("Error getting all categories", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
@@ -73,7 +98,7 @@ export const createCategory = async (req: Request, res: Response) => {
   }
 };
 
-export const deletCategory = async (req: Request, res: Response) => {
+export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const deletedCategory = await prisma.category.delete({
@@ -99,10 +124,10 @@ export const updateCategory = async (req: Request, res: Response) => {
         isEditable,
         name,
         color: {
-          update: color,
+          update: { code: color.code, name: color.name },
         },
         icon: {
-          update: icon,
+          update: { name: icon.name, symbol: icon.symbol },
         },
       },
     });

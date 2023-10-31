@@ -58,7 +58,7 @@ export const loginUser = async (req: Request, res: Response) => {
     );
     if (isPasswordIdentical) {
       const token = getUserToken(existingUser.id);
-      return res.status(200).json({
+      return res.status(200).send({
         token,
         user: {
           email: existingUser.email,
@@ -66,7 +66,7 @@ export const loginUser = async (req: Request, res: Response) => {
         },
       });
     } else {
-      return res.status(403).json({ message: "Wrong credentials" });
+      return res.status(403).send({ message: "Wrong credentials" });
     }
   } catch (error) {
     console.log("error in loginUser", error);

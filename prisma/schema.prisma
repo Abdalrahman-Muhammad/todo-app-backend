@@ -29,7 +29,7 @@ model Task {
 model Category {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  isEditable Boolean
+  isEditable Boolean @default(false)
   color     Color    @relation(fields: [colorId], references: [id])
   colorId String     @db.ObjectId
   icon      Icon     @relation(fields: [iconId], references: [id])
