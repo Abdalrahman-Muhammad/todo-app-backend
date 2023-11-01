@@ -22,7 +22,6 @@ export const getAllTasks = async (req: Request, res: Response) => {
 };
 
 export const getAllTasksByCategory = async (req: Request, res: Response) => {
-  console.log("here");
   try {
     const userId = req.user;
     const { categoryId } = req.params;
@@ -94,7 +93,7 @@ export const createTask = async (req: Request, res: Response) => {
 
 export const toggleTaskStatus = async (req: Request, res: Response) => {
   try {
-    console.log("in toggle");
+    
     const { isCompleted } = req.body;
     const { id } = req.params;
     const task = await prisma.task.update({
